@@ -11,12 +11,14 @@ conda env create -f environment.yml
 ```
 3. Run Preprocessing Python Script with your PATHS:
 ```
-python Zebrafish_Segment_Anything_Preprocessing --DATA_PATH= --META_PATH= —SAM_PATH=
+python Zebrafish_Segment_Anything --DATA_PATH= --META_PATH= —SAM_PATH= --OUT_PATH
 ```
-*This will output the cropped and centered (x, 3, 200,950) numpy file and associated .csv metadata for the following steps*
+*This will output the cropped and centered (x, 3, 200,950) numpy file and associated .csv metadata for the following steps (Specifically for Angle 1)*
 
 (optional) Train VAE:
+```
 
+```
 3. Generate Embeddings:
    
 4. Train Diffusion Model:
@@ -28,6 +30,8 @@ python Zebrafish_LDM_Training.py --run_name= --noise_steps= --epochs= --device= 
 python Zebrafish_Perturbation.py --run_name= --noise_steps= --epochs= --device= --CONVAE_PATH= --DATA_PATH= --OUT_PATH= --META_PATH= --PERTURBATION_PLATE=
 ```
 7. Plot FID Heatmap
-
+```
+python Zebrafish_FID_plot.py --FID_PATH= --MUTANT_COLOR_MAP_PATH= --PLATE_COLOR_MAP_PATH=
+```
 THINGS TO NOTE:
  
