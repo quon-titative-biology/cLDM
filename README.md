@@ -11,8 +11,8 @@ Downloading Required Data:
 
 
 ```
-```
 Data File Stucture:
+```
 root/
 |-- Zebrafish Batch Directory/
 |   |-- Batch_1/
