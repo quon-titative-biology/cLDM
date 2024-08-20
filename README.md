@@ -24,7 +24,7 @@ conda env create -f ZebraFish_LDM.yaml
 ```
 3. Run Preprocessing Python Script with your PATHS:
 ```
-python Zebrafish_Segment_Anything.py --DATA_PATH= --META_PATH= —SAM_PATH= --OUT_PATH=
+python ZebraFish_Segment_Anything.py --DATA_PATH= --META_PATH= —SAM_PATH= --OUT_PATH=
 ```
 *This will output the cropped and centered (x, 3, 200,950) numpy file and associated .csv metadata for the following steps (Specifically for Angle 1)*
 
