@@ -7,7 +7,7 @@ For starters you’ll need to set up a conda environment with the required packa
 
 1. Run the command in your terminal
 ```
-conda env create -f environment.yml
+conda env create -f ZebraFish_LDM.yaml
 ```
 3. Run Preprocessing Python Script with your PATHS:
 ```
