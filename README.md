@@ -5,9 +5,10 @@ This is an instructional guide as to how to run the Zebrafish Diffusion model pi
 This guide will show you how to format and store your data in the correct directories to preprocess, train, and evaluate the model.
 For starters you’ll need to set up a conda environment with the required packaged and python version to run the model.
 
-Downloading Required SAM Model:
+Downloading Required Models:
 ```
 !wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+!wget --no-check-certificate 'https://drive.google.com/drive/folders/1H_qfw568cIughl5swB7N4OS9QL_ZBw9Y?usp=share_link' -O Vae_results.zip
 ```
 Data File Stucture:
 ```
