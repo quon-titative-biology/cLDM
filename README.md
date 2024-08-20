@@ -10,7 +10,9 @@ For starters you’ll need to set up a conda environment with the required packa
 conda env create -f environment.yml
 ```
 3. Run Preprocessing Python Script with your PATHS:
-Python Zebrafish_Segment_Anything_Preprocessing --DATA_PATH= --META_PATH= —SAM_PATH=
+```
+python Zebrafish_Segment_Anything_Preprocessing --DATA_PATH= --META_PATH= —SAM_PATH=
+```
 *This will output the cropped and centered (x, 3, 200,950) numpy file and associated .csv metadata for the following steps*
 
 (optional) Train VAE:
@@ -18,10 +20,14 @@ Python Zebrafish_Segment_Anything_Preprocessing --DATA_PATH= --META_PATH= —SAM
 3. Generate Embeddings:
    
 4. Train Diffusion Model:
-
-5. Perturb Images to selected plate:
-
-6. Plot FID Heatmap
+```
+python Zebrafish_LDM_Training.py --run_name= --noise_steps= --epochs= --device= --CONVAE_PATH= --DATA_PATH= --OUT_PATH= --META_PATH=
+```
+6. Perturb Images to selected plate:
+```
+python Zebrafish_Perturbation.py --run_name= --noise_steps= --epochs= --device= --CONVAE_PATH= --DATA_PATH= --OUT_PATH= --META_PATH= --PERTURBATION_PLATE=
+```
+7. Plot FID Heatmap
 
 THINGS TO NOTE:
  
