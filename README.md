@@ -6,9 +6,10 @@ This guide will show you how to format and store your data in the correct direct
 For starters you’ll need to set up a conda environment with the required packaged and python version to run the model.
 
 1. Run the command in your computers terminal:
+'''
 conda env create -f environment.yml
-
-2. Run Preprocessing Python Script with your PATHS:
+'''
+3. Run Preprocessing Python Script with your PATHS:
 Python Zebrafish_Segment_Anything_Preprocessing --DATA_PATH= --META_PATH= —SAM_PATH=
 *This will output the cropped and centered (x, 3, 200,950) numpy file and associated .csv metadata for the following steps*
 
