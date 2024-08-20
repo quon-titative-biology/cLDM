@@ -11,13 +11,14 @@ Downloading Required Data:
 
 
 ```
+```
 Data File Stucture:
 root/
 |-- Zebrafish Batch Directory/
 |   |-- Batch_1/
 |       |-- Zebrafish_img.tiff
 |       |-- Zebrafish_measurements.json
-
+```
 1. Run the command in your terminal
 ```
 conda env create -f ZebraFish_LDM.yaml
