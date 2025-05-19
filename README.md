@@ -46,9 +46,9 @@ python Zebrafish_Perturbation.py --run_name= --noise_steps= --epochs= --device= 
 ```
 Running Example Process:
 ```
-python ZebraFish_Segment_Anything.py --DATA_PATH= ./Zebrafish_LDM/Data/ --META_PATH= ./Zebrafish_LDM/example.xlsx —SAM_PATH= ./Zebrafish_LDM/models/sam_vit_h_4b8939.pth --OUT_PATH=./Zebrafish_LDM/outputs
-python vae_embed.py --DATA_PATH=./Zebrafish_LDM/outputs/Example_images.npy --META_PATH=.Zebrafish_LDM/outputs/Example_metadata.csv --VAE_PATH=./Zebrafish_LDM/VAE_results/ --MODEL_PATH=./Zebrafish_LDM/models/
-python Zebrafish_Perturbation.py --run_name=LDM_NOGUIDE_TESTANDTRAIN --noise_steps=350 --epochs=2000 --device='cuda' --CONVAE_PATH=./Zebrafish_LDM/models/rvae_1_ckpt_angle1_48.pth --DATA_PATH=./Zebrafish_LDM/VAE_results/model_ckpt/embedding_48_new.pt --OUT_PATH=.Zebrafish_LDM/LDM --META_PATH=./Zebrafish_LDM/outputs/Example_metadata.csv --PERTURBATION_PLATE='3_2021.11.15_hydinKO'
+python ZebraFish_Segment_Anything.py --DATA_PATH= ./Data/ --META_PATH= ./Zebrafish_LDM/example.xlsx —SAM_PATH= ./models/sam_vit_h_4b8939.pth --OUT_PATH=./outputs
+python vae_embed.py --DATA_PATH=./outputs/Example_images.npy --META_PATH=./outputs/Example_metadata.csv --VAE_PATH=./VAE_results/ --MODEL_PATH=./models/
+python Zebrafish_Perturbation.py --run_name=LDM_NOGUIDE_TESTANDTRAIN --noise_steps=350 --epochs=2000 --device='cuda' --CONVAE_PATH=./models/rvae_1_ckpt_angle1_48.pth --DATA_PATH=./VAE_results/model_ckpt/embedding_48_new.pt --OUT_PATH=.Zebrafish_LDM/LDM --META_PATH=./outputs/Example_metadata.csv --PERTURBATION_PLATE='3_2021.11.15_hydinKO'
 ```
 
 
