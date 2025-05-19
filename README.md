@@ -22,7 +22,7 @@ root/
 ```
 conda env create -f ZebraFish_LDM.yaml
 ```
-3. Run Preprocessing Python Script with your PATHS:
+2. Run Preprocessing Python Script with your PATHS:
 ```
 python ZebraFish_Segment_Anything.py --DATA_PATH= --META_PATH= —SAM_PATH= --OUT_PATH=
 ```
@@ -44,10 +44,12 @@ python Zebrafish_LDM_Training.py --run_name= --noise_steps= --epochs= --device= 
 ```
 python Zebrafish_Perturbation.py --run_name= --noise_steps= --epochs= --device= --CONVAE_PATH= --DATA_PATH= --OUT_PATH= --META_PATH= --PERTURBATION_PLATE=
 ```
-7. Plot FID Heatmap
+Running Example Process:
 ```
-python Zebrafish_FID_plot.py --FID_PATH= --MUTANT_COLOR_MAP_PATH= --PLATE_COLOR_MAP_PATH=
+python ZebraFish_Segment_Anything.py --DATA_PATH= ./Zebrafish_LDM/Data/ --META_PATH= ./Zebrafish_LDM/example.xlsx —SAM_PATH= ./Zebrafish_LDM/models/sam_vit_h_4b8939.pth --OUT_PATH=./Zebrafish_LDM/outputs
+python vae_embed.py --DATA_PATH=./Zebrafish_LDM/outputs/Example_images.npy --META_PATH=.Zebrafish_LDM/outputs/Example_metadata.csv --VAE_PATH=./Zebrafish_LDM/VAE_results/ --MODEL_PATH=./Zebrafish_LDM/models/
+python Zebrafish_Perturbation.py --run_name=LDM_NOGUIDE_TESTANDTRAIN --noise_steps=350 --epochs=2000 --device='cuda' --CONVAE_PATH=./Zebrafish_LDM/models/rvae_1_ckpt_angle1_48.pth --DATA_PATH=./Zebrafish_LDM/VAE_results/model_ckpt/embedding_48_new.pt --OUT_PATH=.Zebrafish_LDM/LDM --META_PATH=./Zebrafish_LDM/outputs/Example_metadata.csv --PERTURBATION_PLATE='3_2021.11.15_hydinKO'
 ```
-THINGS TO NOTE:
-The Plotting aspect of the pipeline still needs some updates to clean up the visualiation
-Ill keep updating the code with any changes to improve runtime since this can take quite a while even on GPU's
+
+
+
