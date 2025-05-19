@@ -74,6 +74,7 @@ import scipy.spatial as sp
 torch.cuda.empty_cache()
 import colorcet as cc
 from matplotlib.patches import Rectangle
+import random
 IMG_SIZE = 48
 BATCH_SIZE = 128
 
@@ -83,7 +84,7 @@ BATCH_SIZE = 128
 
 #Hyperparamater configs
 config = SimpleNamespace(
-    run_name = "LDM_NOGUIDE_PTO_PERGEN_HYDIN_1202",
+    run_name = "LDM_NOGUIDE_TESTANDTRAIN",
     epochs = 2000,
     noise_steps=350,
     seed = 42,
@@ -99,12 +100,12 @@ config = SimpleNamespace(
     class_embed = 'ADD',
     drop_stragegy = 'origin',
     num_heads = 4,
-    CONVAE_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/Vae_results/rvae_ckpt_angle1_48.pth',
-    DATA_PATH= '/group/gquongrp/workspaces/rmvaldar/Zebrafish/Vae_results/model_ckpt',
-    OUT_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/LDM',
-    META_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/full_train_test.csv',
+    CONVAE_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/models/rvae_1_ckpt_angle1_48.pth',
+    DATA_PATH= '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/VAE_results/model_ckpt/embedding_48_new.pt',
+    OUT_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/LDM',
+    META_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/outputs/Example_metadata.csv',
     lambda_ = 0.5,
-    PERTURBATION_PLATE= '3_2022.12.02_eGFP')
+    PERTURBATION_PLATE= '3_2021.11.15_hydinKO')
 
 ####################  Set attributes of configs  ################################
 def parse_args(config):
@@ -118,7 +119,7 @@ def parse_args(config):
     parser.add_argument('--device', type=str, default=config.device, help='device')
     parser.add_argument('--lr', type=float, default=config.lr, help='learning rate')
     parser.add_argument('--loss_opt', type=str, default=config.loss_opt, help='MSE of Huber')
-    parser.add_argument('--USE_GUIDE', type=str2bool, default=config.USE_GUIDE, help='Whether using guidance')
+    #parser.add_argument('--USE_GUIDE', type=str2bool, default=config.USE_GUIDE, help='Whether using guidance')
     parser.add_argument('--DROP', type=float, default=config.DROP, help='drop probability for unconditional training')
     parser.add_argument('--unet_depth', type = int, default=4, help='number of layers in Unet')
     parser.add_argument('--class_embed', type = str, default=config.class_embed, help='using additive or concatenation')
@@ -134,32 +135,20 @@ def parse_args(config):
     for k, v in args.items():
         setattr(config, k, v)
 
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if using GPU
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 parse_args(config)
 set_seed(config.seed)
 ############# To save memory, perform LDP on embedding from VAE ################
 pd.set_option("display.max_rows", 999)
 pd.set_option("display.max_columns", 999)
 
-
-def make_colormap(map_arr, data,df,palette):
-    pal = sns.color_palette(palette=palette, n_colors=len(map_arr))
-    lut = dict(zip(map(str, map_arr), pal))
-    colors = pd.Series(data, df.iloc[:,0:].columns).map(lut)
-    return lut, colors
-
-
-def make_colormap_labels(data,df,dct):
-    #Making a palette for each family
-    #luts = []
-    #for i in range(0,len(map_arr)):
-    #    pal = sns.color_palette(palette=palettes[i], n_colors=len(map_arr[i]))
-    #    lut = dict(zip(map(str, map_arr[i]), pal))
-    #    luts.append(lut)
-    #dct = {}
-    #for item in luts:
-    #    dct.update(item)
-    colors = pd.Series(data, df.iloc[:,0:].columns).map(dct)
-    return dct, colors
 
 # Relative path
 def extend_config(config):
@@ -225,32 +214,8 @@ Control_family = ['scrambled','eGFP','uninjected']
 #Changing each control thats not on a plate containing a mutant to common/ unique
 age_plate_mut = image_meta['Age'].astype('str')+ '_' + image_meta['Date'].astype('str') + '_' +  image_meta['Label'].astype('str')
 mutant_plates = np.unique(image_meta[image_meta['Label'].isin(Family_groups[12])].Date).tolist()
-age_plate_mut = age_plate_mut[image_meta['Label'].isin(Control_family) & ~(image_meta['Date'].isin(mutant_plates))]
 uniq_lb, uniq_lb_count = np.unique(age_plate_mut , return_counts = True) # This can be tested from tr, test, val
 count = dict(zip(uniq_lb,uniq_lb_count))
-
-
-#Actual subset process to chance control label to unique control label
-i = 1
-for plate in count:
-    if  (plate !=config.PERTURBATION_PLATE):
-        subset = image_meta.loc[(image_meta['Label'] == plate.split('_')[2]) & (image_meta['Date'] == plate.split('_')[1]), 'Label']
-        subset.iloc[:len(subset)//2] = plate.split('_')[2] + str(i)
-        i+= 1
-        image_meta.loc[(image_meta['Label'] == plate.split('_')[2]) & (image_meta['Date'] == plate.split('_')[1]), 'Label']= subset
-
-#Changing the labels to unique classes
-encoding =  pd.read_csv('/group/gquongrp/workspaces/rmvaldar/Zebrafish/encoding.csv')
-for ind in image_meta.index:
-    Comb = "'"+ str(image_meta['Age'][ind]) + '_' + str(image_meta['Date'][ind]) + '_' + image_meta['Label'][ind] + "'"
-    #print(Comb)
-    if Comb in encoding.Mutant.tolist():
-        image_meta['Label'][ind] = image_meta['Label'][ind] + str(encoding.loc[encoding['Mutant'] == Comb ]['Encoding'].item())
-
-
-
-image_meta = image_meta.reset_index()
-
 dummie_meta_key= ['Age', 'Date','Label']
 dummie_val= [pd.get_dummies(pd.DataFrame(image_meta[meta],dtype="category")).values.argmax(1) for meta in dummie_meta_key]
 meta_dict = dict(zip(dummie_meta_key,dummie_val));
@@ -264,35 +229,12 @@ for dummie, meta in zip(dummie_val, dummie_meta_key):
     dummy_to_meta.append(dummy_meta[~dummy_meta.duplicated()])
 
 
-# Making the concatenation as a whole
-age_plate_mut = image_meta['Age'].astype('str')+ '_' + image_meta['Date'].astype('str') + '_' +  image_meta['Label'].astype('str')
-qury_age_pl_mut = pd.DataFrame(age_plate_mut.value_counts()).reindex()
-
-
-
-
 
 ################################################################################
-# 2. embeddin loading:
+# 2. embedding loading:
 ################################################################################
-train_data = torch.load(os.path.join(config.DATA_PATH,'train_embedding_angle1_48.pt'))
-val_data =  torch.load(os.path.join(config.DATA_PATH, 'val_embedding_angle1_48.pt'))
-test_data = torch.load(os.path.join(config.DATA_PATH,'test_embedding_angle1_48.pt'))
-################################################################################
-# 3. Match the meta feature to training and validation data
-################################################################################
-te_tr_val =  image_meta.groupby(['Train_Or_Test']).indices
-train_index, val_index = te_tr_val['TRAIN'], te_tr_val['VALID']#, te_tr_val['TEST']
+embedding_data = torch.load(config.DATA_PATH)
 
-
-# build dataset loader
-index_data_match = zip([train_data, val_data],[train_index, val_index])
-train_dataloader, val_dataloader = [
-    DataLoader(
-        TensorDataset(data , meta_dict['Age'][index],  meta_dict['Date'][index], meta_dict['Label'][index]),
-        batch_size=config.batch_size,
-        shuffle=True) 
-     for data, index in index_data_match ]
 
 
 ################################################################################
@@ -414,7 +356,6 @@ class DiffusionCond:
 ################################################################################
 device = config.device
 ct = datetime.datetime.now()
-mse = choose_loss(loss_opt = config.loss_opt)
 
 # number of labels per class
 multi_class = [np.unique(value).shape[0] for key, value in zip(dummie_meta_key,dummie_val)]
@@ -447,80 +388,6 @@ diffusion_cond = DiffusionCond(noise_steps = config.noise_steps,
                                device = config.device)
 
 
-#Funciton to Generate sns Heatmap 
-def generate_heatmap(matrix,name,class_names,uniq_data, full_data, singular_paletes,label_palettes,plate_plattes, df,order,date_order):
-    #Age Side Bar
-    Age_lut, Age_colors = make_colormap(uniq_data[0],full_data[0],df,singular_paletes[0])
-    Label_lut, Label_colors = make_colormap_labels(full_data[1],df,label_palettes)
-    Plate_lut, Plate_colors = make_colormap_labels(full_data[2],df,plate_plattes)
-    Count_lut, Count_colors = make_colormap(uniq_data[2],full_data[3],df,singular_paletes[1])
-    dist_metric = 'euclidean'
-    linkage_method = 'ward'
-    matrix_for_hc = sp.distance.pdist(matrix, dist_metric);
-    Z = cl.hierarchy.linkage(matrix_for_hc,linkage_method)
-    leaf_order = cl.hierarchy.leaves_list(Z);
-    plot_mat = pd.DataFrame(matrix, columns = class_names, index = class_names)
-
-    hx = sns.clustermap(plot_mat,
-               figsize = (18,18),
-               method = 'ward',
-               cmap='Reds',
-               col_cluster=True,
-               row_cluster = True,
-               row_colors=[Age_colors,Label_colors,Count_colors],
-               col_colors=[Age_colors,Label_colors,Count_colors],
-               col_linkage = Z,
-               row_linkage = Z,
-               xticklabels=1, yticklabels=1)
-    hx.fig.suptitle(name)
-    for age in list(set(full_data[0])):
-        hx.ax_col_dendrogram.bar(0, 0, color=Age_lut[age],
-                            label=age, linewidth=0)
-    hx.ax_col_dendrogram.legend(loc="center left", ncol=5)
-    for labels in order:
-        hx.ax_row_dendrogram.bar(0, 0, color=Label_lut[labels],
-                            label=labels, linewidth=0)
-    hx.ax_row_dendrogram.legend(loc="center", ncol=2)
-    for counts in uniq_data[2]:
-        hx.ax_col_dendrogram.bar(0, 0, color=Count_lut[counts],
-                            label=counts, linewidth=0)
-    hx.ax_col_dendrogram.legend(loc="center left", ncol=2)
-    plt.savefig(name +'.png')
-    return hx, plot_mat
-
-def generate_Dendo_Plot(matrix,name,class_names,uniq_data, full_data, singular_paletes,label_palettes,plate_plattes, df,order,date_order):
-    #Age Side Bar
-    Age_lut, Age_colors = make_colormap(uniq_data[0],full_data[0],df,singular_paletes[0])
-    Label_lut, Label_colors = make_colormap_labels(full_data[1],df,label_palettes)
-    Plate_lut, Plate_colors = make_colormap_labels(full_data[2],df,plate_plattes)
-    Count_lut, Count_colors = make_colormap(uniq_data[2],full_data[3],df,singular_paletes[1])
-    
-    dist_metric = 'euclidean'
-    linkage_method = 'ward'
-    matrix_for_hc = sp.distance.pdist(matrix, dist_metric);
-    Z = cl.hierarchy.linkage(matrix_for_hc,linkage_method)
-    leaf_order = cl.hierarchy.leaves_list(Z);
-    plot_mat = pd.DataFrame(matrix, columns = class_names, index = class_names)
-    hx = sns.clustermap(plot_mat,
-               figsize = (18,18),
-               method = 'ward',
-               cmap='Reds',
-               col_cluster=True,
-               row_cluster = False,
-               row_colors=[Label_colors],
-               #col_colors=[Age_colors,Label_colors,Count_colors],
-               col_linkage = Z,
-               row_linkage = Z,
-               xticklabels=1, yticklabels=1)
-    hx.fig.suptitle(name)
-    hx.ax_heatmap.remove() 
-    hx.cax.remove()  # remove the color bar
-    print('got here')
-    for labels in order:
-        hx.ax_row_dendrogram.bar(0, 0, color=Label_lut[labels],
-                            label=labels, linewidth=0)
-    plt.savefig(name +'.png')
-    return hx
 
 #################################################################################
 # predefine class to define reconstruction
@@ -530,16 +397,14 @@ def generate_Dendo_Plot(matrix,name,class_names,uniq_data, full_data, singular_p
 CONTROL_SEL = config.PERTURBATION_PLATE.split('_')[2]; DATE = config.PERTURBATION_PLATE.split('_')[1]; AGE = config.PERTURBATION_PLATE.split('_')[0]
 mutant_label = config.PERTURBATION_PLATE
 
-age_sel = dummy_to_meta[0][dummy_to_meta[0]['meta'] == AGE]['dummy'].values
+age_sel = dummy_to_meta[0][dummy_to_meta[0]['meta'] == int(AGE)]['dummy'].values
 date_sel = dummy_to_meta[1][dummy_to_meta[1]['meta'] == DATE]['dummy'].values[0]
 
-
-age_plate_mut_train = age_plate_mut[train_index]# test age_plate_mut
-uniq_lb, uniq_lb_count = np.unique(age_plate_mut_train , return_counts = True) # This can be tested from tr, test, val
+uniq_lb, uniq_lb_count = np.unique(age_plate_mut , return_counts = True) # This can be tested from tr, test, val
 count = dict(zip(uniq_lb,uniq_lb_count))
 
-sel_mutant_index = np.where(age_plate_mut[train_index] == mutant_label)#np.where(age_plate_mut == mutant_label)#np.where(age_plate_mut[train_index]== mutant_label)
-sel_image_tr = train_data[sel_mutant_index].to(device)
+sel_mutant_index = np.where(age_plate_mut == mutant_label)#np.where(age_plate_mut == mutant_label)#np.where(age_plate_mut[train_index]== mutant_label)
+sel_image_tr = embedding_data[sel_mutant_index].to(device)
 
 #determine mutant class
 age_pl_mut = mutant_label.split('_') # label to image class, age, plate, mutant
@@ -556,9 +421,9 @@ dict_variable = {mutclass:mut for index, [mut, mutclass] in enumerate(dummy_to_m
 recon_batchs = []
 for label in tqdm(uniq_lb):
     #original Imagesimed_plot_save
-    sel_mutant_index = np.where(age_plate_mut[train_index]== label)
+    sel_mutant_index = np.where(age_plate_mut== label)
 
-    sel_image_tr = train_data[sel_mutant_index].to(device)
+    sel_image_tr = embedding_data[sel_mutant_index].to(device)
     NUM_SAMPLED_IMG = sel_image_tr.shape[0]
     #Peturbing to each mutant to plate 3_2022.12.02
     sample_class = [age_sel, date_sel, dict_variable[label.split('_')[2]]]
@@ -571,8 +436,8 @@ for label in tqdm(uniq_lb):
     mutant_label = str(AGE) + '_' + DATE + '_' + label.split('_')[2]
     recon_batchs.append((label,sampled_images))
 
-    #save_images(tensorToImage(sampled_images), os.path.join(config.imed_plot_save ,'-'.join([f"0",label,"_Perturbed_to_",mutant_label,"LDM_perturbed_recon.jpg"])))
-
+    save_images(tensorToImage(sampled_images), os.path.join(config.imed_plot_save ,'-'.join([f"0",label,"_Perturbed_to_",mutant_label,"LDM_perturbed_recon.jpg"])))
+    
 
 #################################################################################
 # Computing FID
