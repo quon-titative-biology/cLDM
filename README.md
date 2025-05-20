@@ -17,6 +17,8 @@ root/
 |       |-- Zebrafish_img.tiff
 |       |-- Zebrafish_measurements.json
 
+
+```
 Running Example Process:
 ```
 python ZebraFish_Segment_Anything.py --DATA_PATH= ./Data/ --META_PATH= ./Zebrafish_LDM/example.xlsx —SAM_PATH= ./models/sam_vit_h_4b8939.pth --OUT_PATH=./outputs
