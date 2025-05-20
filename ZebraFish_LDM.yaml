@@ -39,7 +39,7 @@ dependencies:
       - fonttools==4.40.0
       - ftpretty==0.4.0
       - glmnet==2.2.1
-      - goatools==1.4.6
+      - goatools
       - google-auth==2.31.0
       - google-auth-oauthlib==1.0.0
       - grad-cam==1.5.0
