@@ -7,7 +7,7 @@ For starters you’ll need to set up a conda environment with the required packa
 
 Downloading Required Models:
 ```
-Download SAM model weights from https://huggingface.co/HCMUE-Research/SAM-vit-h/resolve/main/sam_vit_h_4b8939.pth
+Download SAM model weights  wget https://huggingface.co/HCMUE-Research/SAM-vit-h/resolve/main/sam_vit_h_4b8939.pth
 ```
 Data File Stucture:
 ```
