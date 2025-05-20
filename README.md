@@ -27,33 +27,3 @@ python Zebrafish_Perturbation.py --run_name=LDM_NOGUIDE_TESTANDTRAIN --noise_ste
 ```
 
 
-```
-1. Run the command in your terminal
-```
-conda env create -f ZebraFish_LDM.yaml
-```
-2. Run Preprocessing Python Script with your PATHS:
-```
-python ZebraFish_Segment_Anything.py --DATA_PATH= --META_PATH= —SAM_PATH= --OUT_PATH=
-```
-*This will output the cropped and centered (x, 3, 200,950) numpy file and associated .csv metadata for the following steps (Specifically for Angle 1)*
-
-(optional) Train VAE:
-```
-python vae_training.py --DATA_PATH= --META_PATH= --VAE_PATH=
-```
-3. Generate Embeddings:
-```
-python vae_embed.py --DATA_PATH= --META_PATH= --VAE_PATH= --MODEL_PATH=
-```
-4. Train Diffusion Model:
-```
-python Zebrafish_LDM_Training.py --run_name= --noise_steps= --epochs= --device= --CONVAE_PATH= --DATA_PATH= --OUT_PATH= --META_PATH=
-```
-6. Perturb Images to selected plate:
-```
-python Zebrafish_Perturbation.py --run_name= --noise_steps= --epochs= --device= --CONVAE_PATH= --DATA_PATH= --OUT_PATH= --META_PATH= --PERTURBATION_PLATE=
-```
-
-
-
