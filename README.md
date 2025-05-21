@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/845127016.svg)](https://doi.org/10.5281/zenodo.15485459)
 # ZebraFish-Diffusion-Model
 Repository for the Zebrafish LDM Pipeline
 
