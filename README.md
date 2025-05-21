@@ -3,7 +3,7 @@ Repository for the Zebrafish LDM Pipeline
 
 This is an instructional guide as to how to run the Zebrafish Diffusion model pipeline.
 This guide will show you how to format and store your data in the correct directories to preprocess, train, and evaluate the model.
-For starters you’ll need to set up a conda environment with the required packaged and python version to run the model.
+To starts you will need to set up a conda environment with the required packaged and python version to run the model.
 
 Downloading Required Models:
 ```
