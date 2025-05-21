@@ -6,7 +6,8 @@ Its applications were used in the study:  Gene expansions contributing to human 
 Directories:
   /Data/ contains directories with images in .tiff format as well associated coordinate .json files
   /Zebrafish-LDM/ contains the teh scripts necesarry to run the the diffusion model
-  /saved_model/ contains directories to saved config files and 
+  /models/ contains all of the saved model weights for the SAM, VAE, and LDM
+  
 
 
 Downloading Required Models:
