@@ -14,7 +14,7 @@ Its applications were used in the study:  Gene expansions contributing to human 
 Downloading Required Models:
 ```
 Download SAM model weights  wget https://huggingface.co/HCMUE-Research/SAM-vit-h/resolve/main/sam_vit_h_4b8939.pth
-Download LDM model weights wget
+Download LDM model weights  wget https://ucdavis.box.com/s/07k7brxsrjfj2h5fq2qv92mwusca02ss
 ```
 
 
