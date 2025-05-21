@@ -34,13 +34,6 @@ Download SAM model weights  wget https://huggingface.co/HCMUE-Research/SAM-vit-h
 Download LDM model weights  wget https://ucdavis.box.com/s/07k7brxsrjfj2h5fq2qv92mwusca02ss
 ```
 
-Input Example:
-
-![input image](https://github.com/user-attachments/assets/eeff26f7-e2eb-4bff-8a52-5003646dbbb1)
-
-Output Example:
-
-![output image](Zebrafish_LDM/output_image.png)
 
 Running Example Process:
 ```
@@ -49,5 +42,13 @@ python Zebrafish_LDM/ZebraFish_Segment_Anything.py --DATA_PATH=./Data/ --META_PA
 python Zebrafish_LDM/vae_embed.py --DATA_PATH=./outputs/Example_images.npy --META_PATH=./outputs/Example_metadata.csv --VAE_PATH=./VAE_results/ --MODEL_PATH=./models/
 python Zebrafish_LDM/Zebrafish_Perturbation.py --run_name=LDM_NOGUIDE_PTO_PERGEN_BESTMODEL --noise_steps=350 --epochs=2000 --device='cuda' --CONVAE_PATH=./models/rvae_1_ckpt_angle1_48.pth --DATA_PATH=./VAE_results/model_ckpt/embedding_48_new.pt --OUT_PATH=.Zebrafish_LDM/LDM --META_PATH=./outputs/Example_metadata.csv --PERTURBATION_PLATE='3_2021.11.15_hydinKO'
 ```
+
+Input Example:
+
+![input image](https://github.com/user-attachments/assets/eeff26f7-e2eb-4bff-8a52-5003646dbbb1)
+
+Output Example:
+
+![output image](Zebrafish_LDM/output_image.png)
 
 
