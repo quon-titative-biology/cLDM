@@ -3,7 +3,10 @@ Repository for the Zebrafish LDM Pipeline
 
 This repository contains an implementation of Denoising Diffusion Probabilistic Models (DDPM). 
 Its applications were used in the study:  Gene expansions contributing to human brain evolution by Daniela C Soto et al.
-The directories are intended for the 
+Directories:
+  /Data/ contains directories with images in .tiff format as well associated coordinate .json files
+  /Zebrafish-LDM/ contains the teh scripts necesarry to run the the diffusion model
+  /saved_model/ contains directories to saved config files and 
 
 
 Downloading Required Models:
@@ -11,16 +14,8 @@ Downloading Required Models:
 Download SAM model weights  wget https://huggingface.co/HCMUE-Research/SAM-vit-h/resolve/main/sam_vit_h_4b8939.pth
 Download LDM model weights wget
 ```
-Data File Stucture:
-```
-root/
-|-- Zebrafish Batch Directory/
-|   |-- Batch_1/
-|       |-- Zebrafish_img.tiff
-|       |-- Zebrafish_measurements.json
 
 
-```
 Running Example Process:
 ```
 conda env create -f ZebraFish_LDM.yaml
