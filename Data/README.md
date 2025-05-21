@@ -1,1 +1,1 @@
-This directory contains ths example data under the folder example_1
+This directory contains the example .tiff and .json under the example_data_1 folder necesasry to run the example process
