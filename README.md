@@ -9,7 +9,24 @@ Its applications were used in the study:  Gene expansions contributing to human 
 - `/VAE_results/` — Contains the saved embeddings after running the embed script  
 - `/outputs/` — Contains the results of the Segment Anything preprocessing script  
   
+Structure of model weights in Directories
+```
+.
+├── Data/
+│   └── ... (image .tiff files and associated .json files)
+├── Zebrafish-LDM/
+│   └── ... (diffusion model scripts)
+├── models/
+│   ├── sam_vit_h_4b8939.pth
+│   ├── rvae_1_ckpt_angle1_48.pth
+│   └── LDM_NOGUIDE_PTO_PERGEN_BESTMODEL/
+│       └── ... (LDM model files)
+├── VAE_results/
+│   └── ... (saved embeddings)
+├── outputs/
+│   └── ... (Segment Anything preprocessing results)
 
+```
 
 Downloading Required Models:
 ```
