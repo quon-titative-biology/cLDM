@@ -127,4 +127,4 @@ dependencies:
       - xgboost==2.1.0
       - xlsxwriter==3.2.0
       - zipp==3.15.0
-prefix: /home/rmvaldar/.conda/envs/a100-alex2
+prefix: /home/rmvaldar/.conda/envs/Zebrafish-LDM
