@@ -103,7 +103,7 @@ dependencies:
       - segment-anything==1.0
       - shapely==2.0.2
       - six==1.16.0
-      - sklearn==0.0.post5
+      - scikit-learn
       - smop==0.41
       - statsmodels==0.14.1
       - sympy==1.11.1
@@ -111,11 +111,11 @@ dependencies:
       - tensorboard==2.14.0
       - tensorboard-data-server==0.7.2
       - threadpoolctl==3.1.0
-      - torch==2.0.1+cu118
+      - torch==2.0.1
       - torch-fidelity==0.3.0
-      - torchaudio==2.0.2+cu118
+      - torchaudio==2.0.2
       - torchmetrics==0.9.3
-      - torchvision==0.15.2+cu118
+      - torchvision==0.15.2
       - tqdm==4.65.0
       - triton==2.0.0
       - ttach==0.0.3
