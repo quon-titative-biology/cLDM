@@ -1,5 +1,5 @@
 #Main file that runs helpers to process images:
-from Zebrafish_LDM.Zebrafish_Segment_Anything_utils import *
+from Zebrafish_Segment_Anything_utils import *
 import sys
 sys.path.append("..")
 from segment_anything import sam_model_registry, SamPredictor
@@ -8,10 +8,10 @@ from types import SimpleNamespace
 
 #Argument Parser
 config = SimpleNamespace(
-    DATA_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/Data/',
-    META_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/example.xlsx',
-    SAM_PATH = "/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/models/sam_vit_h_4b8939.pth",
-    OUT_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/outputs/')
+    DATA_PATH = './Data/',
+    META_PATH = './Zebrafish_LDM/example.xlsx',
+    SAM_PATH = './models/sam_vit_h_4b8939.pth',
+    OUT_PATH = './outputs')
 
 ####################  Set attributes of configs  ################################
 def parse_args(config):
@@ -41,7 +41,7 @@ IMG_DICT, JSON_DICT = Load_Dictionaries(BASE_DIR,df_ordered)
 #=====================================================#
 sam_checkpoint = config.SAM_PATH
 model_type = "vit_h"
-device = "cuda"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 sam.to(device=device)
 

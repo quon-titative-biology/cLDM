@@ -38,7 +38,7 @@ BATCH_SIZE = 128
 
 #Hyperparamater configs
 config = SimpleNamespace(
-    run_name = "LDM_NOGUIDE_TESTANDTRAIN",
+    run_name = "LDM_NOGUIDE",
     epochs = 2000,
     noise_steps=350,
     seed = 42,

@@ -20,8 +20,8 @@ from util import *
 ############################################### 0. Load the data ###############################################
 #Argument Parser
 config = SimpleNamespace(
-    DATA_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/Zebrafish_Angle1_Imgs.npy',
-    META_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/full_train_test_TRAINANDTEST.csv',
+    DATA_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/files/',
+    META_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/Morphometric_data-2.xlsx',
     VAE_PATH = '/group/gquongrp/workspaces/rmvaldar/VAE_results/')
 ####################  Set attributes of configs  ################################
 def parse_args(config):
@@ -41,7 +41,7 @@ full_csv =  pd.read_csv(config.META_PATH, index_col=0)
 #Fetching indices
 Train_indices = full_csv.index[full_csv['Train_Or_Test'] == 'TRAIN'].tolist()
 Valid_indices = full_csv.index[full_csv['Train_Or_Test'] == 'VALID'].tolist()
-#Test_indices = full_csv.index[full_csv['Train_Or_Test'] == 'TEST'].tolist()
+Test_indices = full_csv.index[full_csv['Train_Or_Test'] == 'TEST'].tolist()
 
 ymap = {'pdzk1KO': 0,
  'hydinKO': 1,
@@ -77,7 +77,7 @@ ymap = {'pdzk1KO': 0,
 #Stacking sets
 data_train = np.stack([full_imgs[i] for i in Train_indices],axis = 0).astype(np.uint8)
 data_val = np.stack([full_imgs[i] for i in Valid_indices],axis = 0).astype(np.uint8)
-#data_test = np.stack([full_imgs[i] for i in Test_indices],axis = 0).astype(np.uint8)
+data_test = np.stack([full_imgs[i] for i in Test_indices],axis = 0).astype(np.uint8)
 
 meta_train = np.stack([ymap[full_csv.iloc[i , full_csv.columns.get_loc("Label")]] for i in Train_indices], axis=0)
 meta_val = np.stack([ymap[full_csv.iloc[i , full_csv.columns.get_loc("Label")]] for i in Valid_indices], axis=0)
@@ -99,17 +99,17 @@ print(data_train[:,:,0:crop_width,:].shape, data_train[:,:,-crop_width:,:].shape
 # (2928, 200, 78, 3) (2928, 200, 78, 3)
 print(data_train[:,:,0:crop_width,:].max(), data_train[:,:,-crop_width:,:].max())
 # 0 0
-data_train, data_val = data_train[:,:,crop_width:-crop_width,:], data_val[:,:,crop_width:-crop_width,:]#,data_test[:,:,crop_width:-crop_width,:]
+data_train, data_val,data_test = data_train[:,:,crop_width:-crop_width,:], data_val[:,:,crop_width:-crop_width,:],data_test[:,:,crop_width:-crop_width,:]
 print(data_train.shape, data_val.shape)
 # (2928, 200, 794, 3) (192, 200, 794, 3)
 sample_train, height, width, channels = data_train.shape
 sample_val, _, _, _ = data_val.shape
-#sample_test, _, _, _ = data_test.shape
+sample_test, _, _, _ = data_test.shape
 new_arr_train = np.zeros((sample_train, height+pad_height, width, channels), dtype = np.uint8)
 new_arr_val = np.zeros((sample_val, height+pad_height, width, channels), dtype = np.uint8)
-#new_arr_test = np.zeros((sample_test, height+pad_height, width, channels), dtype = np.uint8)
+new_arr_test = np.zeros((sample_test, height+pad_height, width, channels), dtype = np.uint8)
 
-print(new_arr_train.shape, new_arr_val.shape)#, new_arr_test.shape)
+print(new_arr_train.shape, new_arr_val.shape, new_arr_test.shape)
 # (2928, 203, 794, 3) (192, 203, 794, 3)
 for i in range(sample_train):
     new_arr_train[i, 0:height, :, :] = data_train[i]
@@ -118,21 +118,21 @@ for i in range(sample_train):
 for i in range(sample_val):
     new_arr_val[i, 0:height, :, :] = data_val[i]
 
-#for i in range(sample_test):
-#    new_arr_test[i, 0:height, :, :] = data_test[i]
+for i in range(sample_test):
+    new_arr_test[i, 0:height, :, :] = data_test[i]
 
-print(new_arr_train.shape, new_arr_val.shape)#, new_arr_test.shape)
+print(new_arr_train.shape, new_arr_val.shape, new_arr_test.shape)
 # (2928, 203, 794, 3) (192, 203, 794, 3)
-print(new_arr_train[:,-pad_height:,:,:].max(), new_arr_val[:,-pad_height:,:,:].max())#, new_arr_test[:,-pad_height:,:,:].max())
+print(new_arr_train[:,-pad_height:,:,:].max(), new_arr_val[:,-pad_height:,:,:].max(), new_arr_test[:,-pad_height:,:,:].max())
 # 0 0
 data_transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda t: (t * 2) - 1)]) #, transforms.Resize((128, 128))])
 transformed_images_train = [data_transform(image) for image in new_arr_train]
 transformed_images_val = [data_transform(image) for image in new_arr_val]
-#transformed_images_test = [data_transform(image) for image in new_arr_test]
+transformed_images_test = [data_transform(image) for image in new_arr_test]
 
 dataset_train = torch.stack(transformed_images_train)
 dataset_val = torch.stack(transformed_images_val)
-#dataset_test = torch.stack(transformed_images_test)
+dataset_test = torch.stack(transformed_images_test)
 dataset_train.shape # torch.Size([2928, 3, 203, 794])
 dataset_val.shape   # torch.Size([192, 3, 203, 794])
 
@@ -144,18 +144,18 @@ rvae = ResVAE()
 data_set = dataset_train[0:5,:,:,:].cpu()
 reconstruction, posterior = rvae(data_set)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = 'cuda'
-trainData = dataset_train.to(device)
-trainLabel = torch.FloatTensor(meta_train).to(device)
-valData = dataset_val.to(device)
 
+trainData = dataset_train.cuda()
+trainLabel = torch.FloatTensor(meta_train).cuda()
+valData = dataset_val.cuda()
+testData = dataset_test.cuda()
 train_dataset = TensorDataset(trainData,trainLabel)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 rvae = ResVAE()
 rvae.to(device)
 learning_rate = 1e-3
-batch_size = 32
+batch_size = 100
 epochs = 200
 min_val_loss = np.Inf
 epochs_no_improve = 0

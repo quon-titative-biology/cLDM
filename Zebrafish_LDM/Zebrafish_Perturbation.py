@@ -28,7 +28,6 @@ import gc
 import argparse, logging, copy
 from model48 import *
 from Unet_modules_new import *
-from FID import *
 #from diff_modules import *
 from util import *
 import scipy.cluster as cl
@@ -66,7 +65,6 @@ import gc
 import argparse, logging, copy
 from model48 import *
 from Unet_modules_new import *
-from FID import *
 #from diff_modules import *
 from util import *
 import scipy.cluster as cl
@@ -90,7 +88,7 @@ config = SimpleNamespace(
     seed = 42,
     batch_size = BATCH_SIZE,
     img_size = IMG_SIZE ,
-    device = 'cuda',#torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     lr = 1e-4,
     loss_opt = 'mse',
     USE_GUIDE = False,
@@ -249,7 +247,7 @@ rvae.eval()
 ################################################################################
 class DiffusionCond:
     """ Conditional diffusion with classifier free guidence """
-    def __init__(self, noise_steps=1000, beta_start=1e-4, beta_end=0.02, img_size=256,guide = True, device="cuda", scheduler = 'linear'):
+    def __init__(self, noise_steps=1000, beta_start=1e-4, beta_end=0.02, img_size=256,guide = True, device='cpu', scheduler = 'linear'):
         self.noise_steps = noise_steps
         self.beta_start = beta_start
         self.beta_end = beta_end
@@ -438,28 +436,3 @@ for label in tqdm(uniq_lb):
 
     save_images(tensorToImage(sampled_images), os.path.join(config.imed_plot_save ,'-'.join([f"0",label,"_Perturbed_to_",mutant_label,"LDM_perturbed_recon.jpg"])))
     
-
-#################################################################################
-# Computing FID
-#################################################################################
-FID_perturb_dict = {}
-FID_Cache = {}
-for batch1 in tqdm(recon_batchs):
-    FID_BATCH = []
-    for batch2 in recon_batchs:
-        try:
-            FID = computeFID(batch1[1],batch2[1])
-            FID_Cache[(batch2[0],batch1[0])] = FID.item()
-            FID_BATCH.append(FID.item())
-        except ValueError:
-            print('error')
-    FID_perturb_dict[batch1[0]] = FID_BATCH
-
-#IF ERROR OCCURS 
-for batch in FID_perturb_dict:
-    if FID_perturb_dict[batch] == []:
-        print(batch)
-
-
-FID_perturb_df = pd.DataFrame(FID_perturb_dict, columns=[batch for batch in list(FID_perturb_dict.keys())], index=[batch for batch in list(FID_perturb_dict.keys())])
-FID_perturb_df.to_csv(os.path.join(config.OUT_PATH,'FID_Perturbed_Image_LDM.csv'))

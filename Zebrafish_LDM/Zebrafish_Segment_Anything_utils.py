@@ -42,7 +42,7 @@ def show_box(box, ax):
 
 def Load_images(df,f):
   Unique_ID = df['Well'].unique()
-
+  IDS = []
   images = {}
   ordered_images = {}
   for file_name in tqdm(os.listdir(f)):
@@ -400,19 +400,21 @@ def full_augment(img_dict):
 
 def Process_imgs(imgs):
   processed_images = np.zeros((imgs.shape[0],200,950,3))
+  i_for_rmval = []
   for i in range(imgs.shape[0]):
     img = imgs[i].astype('uint8') * 255
     resized_img = resize_image(img)
     #print('Got here')
     if  120 > resized_img.shape[0] > 50:
+      print(resized_img.shape)
       padded_img = padding_image(resized_img,200,950,(0,0,0))
       inverted_img = 255 - padded_img
       wt_pixels = np.where( (inverted_img[:, :, 0] == 255) & (inverted_img[:, :, 1] == 255) & (inverted_img[:, :, 2] == 255))
       inverted_img[wt_pixels] = [0, 0 ,0]
       processed_images[i] = inverted_img
     else:
-      continue
-  return processed_images
+      i_for_rmval.append(i)
+  return processed_images, i_for_rmval
 
 def gen_csv(new_df):
   new_df['Issues'] = [False for i in range(new_df.shape[0])]
@@ -427,6 +429,7 @@ def Load_Dictionaries(BASE_DIR,df):
     img_dict = {}
     json_dict = {}
     for dir in os.listdir(BASE_DIR):
+        print(dir)
         t_img_dict = Load_images(df,os.path.join(BASE_DIR,dir))
         t_json_dict,_ = Load_JSON_from_folder(os.path.join(BASE_DIR,dir), df)
         img_dict[dir] = t_img_dict

@@ -16,10 +16,10 @@ from types import SimpleNamespace
 ############################################### 0. Load the data ###############################################
 #Argument Parser
 config = SimpleNamespace(
-    DATA_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/outputs/Example_images.npy',
-    META_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/outputs/Example_metadata.csv',
-    VAE_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/VAE_results/',
-    MODEL_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/models/',
+    DATA_PATH = './outputs/Example_images.npy',
+    META_PATH = './outputs/Example_metadata.csv',
+    VAE_PATH = './VAE_results/',
+    MODEL_PATH = './models/',
     )
 ####################  Set attributes of configs  ################################
 def parse_args(config):
@@ -32,7 +32,7 @@ def parse_args(config):
     # update config with parsed args
     for k, v in args.items():
         setattr(config, k, v)
-'/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/Zebrafish_LDM/models/'
+
 parse_args(config)
 
 #Loading in Processed Images
@@ -63,9 +63,9 @@ from model48 import *
 rvae = ResVAE()
 data_set = image_dataset[0:5,:,:,:].cpu()
 reconstruction, posterior = rvae(data_set)
-
-trainData = image_dataset.cuda()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+trainData = image_dataset.to(device)
+
 
 rvae = ResVAE()
 rvae.to(device)
@@ -79,5 +79,4 @@ with torch.no_grad():
 
 
 train_embedding = train_posterior.mode()
-# torch.Size([2928, 3, 48, 48]) torch.Size([192, 3, 48, 48])
-torch.save(train_embedding, os.path.join(data_path,'model_ckpt/train_embedding_angle1_48_new.pt'))
+torch.save(train_embedding, os.path.join(data_path,'model_ckpt/embedding_48_new.pt'))
