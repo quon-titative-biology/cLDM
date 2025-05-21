@@ -37,6 +37,9 @@ Download LDM model weights  wget https://ucdavis.box.com/s/07k7brxsrjfj2h5fq2qv9
 Input Example:
 ![image](https://github.com/user-attachments/assets/eeff26f7-e2eb-4bff-8a52-5003646dbbb1)
 
+Output Example:
+
+
 Running Example Process:
 ```
 conda env create -f ZebraFish_LDM.yaml
