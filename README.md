@@ -1,13 +1,15 @@
 # ZebraFish-Diffusion-Model
 Repository for the Zebrafish LDM Pipeline
 
-This is an instructional guide as to how to run the Zebrafish Diffusion model pipeline.
-This guide will show you how to format and store your data in the correct directories to preprocess, train, and evaluate the model.
-To starts you will need to set up a conda environment with the required packaged and python version to run the model.
+This repository contains an implementation of Denoising Diffusion Probabilistic Models (DDPM). 
+Its applications were used in the study:  Gene expansions contributing to human brain evolution by Daniela C Soto et al.
+The directories are intended for the 
+
 
 Downloading Required Models:
 ```
 Download SAM model weights  wget https://huggingface.co/HCMUE-Research/SAM-vit-h/resolve/main/sam_vit_h_4b8939.pth
+Download LDM model weights wget
 ```
 Data File Stucture:
 ```
