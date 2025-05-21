@@ -2,7 +2,7 @@
 Repository for the Zebrafish LDM Pipeline
 
 This repository contains an implementation of Denoising Diffusion Probabilistic Models (DDPM). 
-Its applications were used in the study:  Gene expansions contributing to human brain evolution by Daniela C Soto et al.
+Its applications were used in the study:  Gene expansions contributing to human brain evolution by Daniela C Soto et al. (Cell, 2025)
 - `/Data/` — Contains directories with images in `.tiff` format as well as associated coordinate `.json` files  
 - `/Zebrafish-LDM/` — Contains the scripts necessary to run the diffusion model  
 - `/models/` — Contains all saved model weights for the SAM, VAE, and LDM  
