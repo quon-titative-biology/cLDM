@@ -1,6 +1,6 @@
 This directory contains the example `.tiff` and `.json` under the `/example_data_1/` folder necessary to run the example process
-Root folders containg data should be formatted as `batch_VAST_HSDs_pooled_humanized_age_genotype_plate`
-Image
+- Root folders containg data should be formatted as `batch_VAST_HSDs_pooled_humanized_age_genotype_plate`
+- Image
 Example Stucture:
 ```
 ├── 2022.11.11_VAST_HSDs_pooled_humanized_5dpf_arhgap11_plate1/
