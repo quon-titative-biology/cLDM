@@ -1,6 +1,7 @@
 This directory contains the example `.tiff` and `.json` under the `/example_data_1/` folder necessary to run the example process
 - Root folders containg data should be formatted as `batch_VAST_HSDs_pooled_humanized_age_genotype_plate`
-- Image
+- Image `.tiff` naming convention: `batch_age_(tail or head)_W_ID_plate_Angle_rot.tiff`
+- JSON file naming convention: `batch_age_(tail or head)_W_ID_plate_Angle_rot__SHAPES.json`
   
 Example Stucture:
 ```
