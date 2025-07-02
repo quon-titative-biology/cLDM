@@ -211,15 +211,6 @@ def detect_trunc(id,dict,border):
   return flag, len(mask_coords)
 
 def find_border_pixels(img):
-  a = img
-  bw = 5
-  mask = np.ones(a.shape[:2], dtype = "uint8")
-  cv2.rectangle(mask, (bw,bw),(a.shape[1]-bw,a.shape[0]-bw), 0, -1)
-  output = cv2.bitwise_and(a, a, mask = mask)
-  coords = np.column_stack(np.where(rgb2gray(output) != (0)))
-  return coords.tolist()
-
-def find_border_pixels(img):
     bw = 5  # Border width
     # Ensure the image is in grayscale
     gray_img = rgb2gray(img)
@@ -343,7 +334,7 @@ def Segment_images(predictor, img_dict, json_dict):
 
 #Making dataset based on the read in values:
 def create_Dataset(img_masks,cropped_imgs):
-  geno, age,ids,trun,mask,plates,dates = [],[],[],[],[],[],[]
+  geno, age,ids,trun,plates,dates = [],[],[],[],[],[]
   for id in cropped_imgs.keys():
     age.append(id.split('_')[0])
     geno.append(id.split('_')[1])
@@ -352,12 +343,12 @@ def create_Dataset(img_masks,cropped_imgs):
     dates.append(id.split('_')[2])
 
     border = find_border_pixels(cropped_imgs[id])
-    trunc,size = detect_trunc(id,img_masks,border)
-
+    if border == []:
+      trunc = False
+    trun.append(trunc)
   new_df = pd.DataFrame({'Label': geno, 'Age': age,
               'Date':dates, 'Fish_ID':ids,
-              'Plate':plates, 'truncated':trunc,
-              'Mask_intensity':size})
+              'Plate':plates, 'truncated':trun})
   return new_df
 
 #Next step in preprocessing
