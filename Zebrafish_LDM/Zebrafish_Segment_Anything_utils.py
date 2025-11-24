@@ -41,41 +41,33 @@ def show_box(box, ax):
     ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0,0,0,0), lw=2))
 
 def Load_images(df,f):
-  Unique_ID = df['Well'].unique()
-  IDS = []
   images = {}
   ordered_images = {}
   for file_name in tqdm(os.listdir(f)):
     img = cv2.imread(os.path.join(f, file_name))
     if img is not None:
+        file_info = file_name.split("_")
+        vastdate = file_info[0]
+        plate_num = f[-1]
+        found_ID = file_info[4]
 
-      for ID in Unique_ID.tolist():
-        start_index = file_name.find(ID)
-        if start_index != -1:
-          found_ID = file_name[start_index:start_index+7]
-          plate_num = f[-1]
-          vastdate = file_name[0:10]
-          view = fetch_view_number(file_name)
-          #print(vastdate)
+        if df[(df['Well']==found_ID[0:3]) & (df['DateVAST']==str(vastdate))]['GeneralIssues'].values[0] == 'No':
+            if df[(df['Well']==found_ID[0:3]) &(df['DateVAST']==str(vastdate))]['Truncated'].values[0] == 'No':
 
-      if ((df['Well']==found_ID[0:3]) & (df['DateVAST']==str(vastdate))).any():
-        if df[(df['Well']==found_ID[0:3]) &(df['DateVAST']==str(vastdate))]['GeneralIssues'].values[0] == 'No':
-          if df[(df['Well']==found_ID[0:3]) &(df['DateVAST']==str(vastdate))]['Truncated'].values[0] == 'No':
+                filetered_df = df[(df.DateVAST == str(vastdate)) & (df.Plate == int(plate_num))]
 
-            filetered_df = df[(df.DateVAST == str(vastdate)) & (df.Plate == int(plate_num))]
-
-            selected_row = filetered_df[filetered_df['Well'] == found_ID[0:3]]
-            if selected_row.shape[0] == 0:
-                continue
-            if selected_row.shape[0] > 1:
-                selected_row = selected_row.iloc[[0]]
-            A = selected_row['Age'].item()
-            G = selected_row['Genotype'].item()
-            D = selected_row['DateVAST'].item()
-            P = selected_row['Plate'].item()
-            I = selected_row['Well'].item()
-            full_id = '{A}_{G}_{D}_{P}_{I}_{V}'.format(A=A,G=G,D=D,P=P,I=I,V=view)
-            images[full_id] = img
+                selected_row = filetered_df[filetered_df['Well'] == found_ID[0:3]]
+                if selected_row.shape[0] == 0:
+                    continue
+                if selected_row.shape[0] > 1:
+                    selected_row = selected_row.iloc[[0]]
+                A = selected_row['Age'].item()
+                G = selected_row['Genotype'].item()
+                D = selected_row['DateVAST'].item()
+                P = selected_row['Plate'].item()
+                I = selected_row['Well'].item()
+                full_id = '{A}_{G}_{D}_{P}_{I}'.format(A=A,G=G,D=D,P=P,I=I)
+                images[full_id] = img
 
   ordered_images = OrderedDict(sorted(images.items()))
   return ordered_images
@@ -90,20 +82,11 @@ def JSON_Parser(file):
 
   for i in features:
     if "shape" in data[i]:
-      if isinstance(data[i]["shape"], list) and  data[i]["shape"] is not None:
+      if data[i]["shape"] is not None:
         pair_list = []
-        for j in range(len(data[i]["shape"][0]["x"])):
-          pair_list.append((data[i]["shape"][0]["y"][j], data[i]["shape"][0]["x"][j]))
+        for j in range(len(data[i]["shape"]["x"])):
+          pair_list.append((data[i]["shape"]["y"][j], data[i]["shape"]["x"][j]))
         features_dict[i] = pair_list
-      else:
-        if data[i]['shape'] is not None:
-          if isinstance(data[i]['shape']['x'],list):
-            pair_list = []
-            for j in range(len(data[i]["shape"]["x"])):
-              pair_list.append((math.floor(data[i]["shape"]["y"][j]), math.floor(data[i]["shape"]["x"][j])))
-
-        features_dict[i] = pair_list
-  #print(features_dict.keys())
   return features_dict
 
 def JSON_RegionProps(file):
@@ -118,27 +101,23 @@ def JSON_RegionProps(file):
 
 #Function to Load the JSON files from the folder, saving them as dictionaries
 def Load_JSON_from_folder(f,df):
-
   Unique_ID = df['Well'].unique()
   JSONs = {}
   JSON_prop = {}
   json_files = [path for path in os.listdir(f) if path.endswith('.json')]
   #print(len(json_files))
   for shape in tqdm(json_files):
-    #print(shape)
-    for ID in Unique_ID.tolist():
-      start_index = shape.find(ID)
-      if start_index != -1:
-        found_ID = shape[start_index:start_index+7]
-        plate_num = f[-1]
-        vastdate = shape[0:10]
-        view = fetch_view_number(shape)
-        #print(view)
-    if ((df['Well']==found_ID[0:3]) & (df['DateVAST']==str(vastdate))).any():
-        if df[(df['Well']==found_ID[0:3]) &(df['DateVAST']==str(vastdate))]['GeneralIssues'].values[0] == 'No':
-          if df[(df['Well']==found_ID[0:3]) &(df['DateVAST']==str(vastdate))]['Truncated'].values[0] == 'No':
-            #print(file_name, 'got here')
+    print(shape)
+    file_info = shape.split("_")
+    vastdate = file_info[0]
+    plate_num = f[-1]
+    found_ID = file_info[4]
+
+    if df[(df['Well']==found_ID[0:3]) & (df['DateVAST']==str(vastdate))]['GeneralIssues'].values[0] == 'No':
+        if df[(df['Well']==found_ID[0:3]) &(df['DateVAST']==str(vastdate))]['Truncated'].values[0] == 'No':
+            
             feature_dict = JSON_Parser(os.path.join(f,shape))
+            print(shape, 'got here')
             region_prop_dict = JSON_RegionProps(os.path.join(f,shape))
 
             filetered_df = df[(df.DateVAST == str(vastdate)) & (df.Plate == int(plate_num))]
@@ -153,7 +132,7 @@ def Load_JSON_from_folder(f,df):
             D = selected_row['DateVAST'].item()
             P = selected_row['Plate'].item()
             I = selected_row['Well'].item()
-            full_id = '{A}_{G}_{D}_{P}_{I}_{V}'.format(A=A,G=G,D=D,P=P,I=I,V=view)
+            full_id = '{A}_{G}_{D}_{P}_{I}'.format(A=A,G=G,D=D,P=P,I=I)
 
             JSONs[full_id] = feature_dict
             JSON_prop[full_id] = region_prop_dict
@@ -244,92 +223,39 @@ def find_rightmost_point(contour):
   farthest_width = w[w.index(max(w))]
 
 
-#Function to loop through the images and get their masks:
-def Segment_images(predictor, img_dict, json_dict):
-  img_id_to_mask = {}
-  for img in tqdm(json_dict.keys()):
-    #For Angles 2 and 4
-    if img[-1] == str(2):
+#main Segmentation funciton for any perspective
+def Segment_images(predictor, img_dict, json_dict): 
+    img_id_to_mask = {}
+    for img in tqdm(json_dict.keys()):
       predictor.set_image(img_dict[img])
       if (len(list(json_dict[img].keys()))) == 1:
-        contour_point = Find_centroid(json_dict[img]['contour_net'],img_dict[img])
-        input_point = np.array([contour_point])
-        input_label = np.array([1])
+        ctr_pt = Find_centroid(json_dict[img]['contourDV_net'],img_dict[img])
+        in_pt = np.array([ctr_pt])
+        in_lbl = np.array([1])
       else:
-        yolk_centroid = Find_centroid(json_dict[img]['contour_net'],img_dict[img])
-        eye_centroid = Find_centroid(json_dict[img]['eye_net'],img_dict[img])
-        #contour_farthest_point = find_rightmost_point(json_dict[img]['contour_net'])
+        yok_ctr = Find_centroid(json_dict[img]['yolkDV_net'],img_dict[img])
+        eye_ctr = Find_centroid(json_dict[img]['eye1DV_net'],img_dict[img])
+        contour_farthest_point = find_rightmost_point(json_dict[img]['contourDV_net'])
 
-        input_point = np.array([[yolk_centroid[0],yolk_centroid[1]],[eye_centroid[0],eye_centroid[1]]])
-        input_label = np.array([1,1])
+        in_pt = np.array([[yok_ctr[0],yok_ctr[1]],[eye_ctr[0],eye_ctr[1]]])
+        in_lbl = np.array([1,1])
+        #Multi_mask:
 
       masks, scores, logits = predictor.predict(
-      point_coords=input_point,
-      point_labels=input_label,
+      point_coords=in_pt,
+      point_labels=in_lbl,
       multimask_output=True,
       )
 
       #Single mask:
       mask_input = logits[np.argmax(scores), :, :]
       masks, _, _ = predictor.predict(
-      point_coords=input_point,
-      point_labels=input_label,
+      point_coords=in_pt,
+      point_labels=in_lbl,
       mask_input=mask_input[None, :, :],
       multimask_output=False,
       )
       img_id_to_mask[img] = masks
-    #For angles 1 and 3 
-  return img_id_to_mask
-
-#main Segmentation funciton for any perspective
-def Segment_images(predictor, img_dict, json_dict): 
-    img_id_to_mask = {}
-    for img in tqdm(json_dict.keys()):
-        #print(img)
-        if int(img[-1]) % 2 == 0:
-            predictor.set_image(img_dict[img])
-            if (len(list(json_dict[img].keys()))) == 1:
-                ctr_pt = Find_centroid(json_dict[img]['contour_net'],img_dict[img])
-                in_pt = np.array([ctr_pt])
-                in_lbl = np.array([1])
-            else:
-                yk_ctr = Find_centroid(json_dict[img]['contour_net'],img_dict[img])
-                eye_ctr = Find_centroid(json_dict[img]['eye_net'],img_dict[img])
-                #contour_farthest_point = find_rightmost_point(json_dict[img]['contour_net'])
-
-            in_pt = np.array([[yk_ctr[0],yk_ctr[1]],[eye_ctr[0],eye_ctr[1]]])
-            in_lbl = np.array([1,1])
-
-        if int(img[-1]) % 2 == 1:
-            predictor.set_image(img_dict[img])
-            if (len(list(json_dict[img].keys()))) == 1:
-                ctr_pt = Find_centroid(json_dict[img]['contourDV_net'],img_dict[img])
-                in_pt = np.array([ctr_pt])
-                in_lbl = np.array([1])
-            else:
-                yok_ctr = Find_centroid(json_dict[img]['yolkDV_net'],img_dict[img])
-                eye_ctr = Find_centroid(json_dict[img]['eye1DV_net'],img_dict[img])
-                contour_farthest_point = find_rightmost_point(json_dict[img]['contourDV_net'])
-
-            in_pt = np.array([[yok_ctr[0],yok_ctr[1]],[eye_ctr[0],eye_ctr[1]]])
-            in_lbl = np.array([1,1])
-            #Multi_mask:
-
-        masks, scores, logits = predictor.predict(
-        point_coords=in_pt,
-        point_labels=in_lbl,
-        multimask_output=True,
-        )
-
-        #Single mask:
-        mask_input = logits[np.argmax(scores), :, :]
-        masks, _, _ = predictor.predict(
-        point_coords=in_pt,
-        point_labels=in_lbl,
-        mask_input=mask_input[None, :, :],
-        multimask_output=False,
-        )
-        img_id_to_mask[img] = masks
     return img_id_to_mask
 
 #Making dataset based on the read in values:
