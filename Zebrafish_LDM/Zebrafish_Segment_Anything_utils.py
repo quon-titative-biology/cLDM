@@ -41,33 +41,40 @@ def show_box(box, ax):
     ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0,0,0,0), lw=2))
 
 def Load_images(df,f):
+  #Assuming the directory f includes the plate number as the last integer
   images = {}
   ordered_images = {}
-  for file_name in tqdm(os.listdir(f)):
+  img_files = [img for img in os.listdir(f) if img.lower().endswith(".tiff")]
+  for file_name in tqdm(img_files):
+    #Attempting to Load in Images
     img = cv2.imread(os.path.join(f, file_name))
-    if img is not None:
-        file_info = file_name.split("_")
-        vastdate = file_info[0]
-        plate_num = f[-1]
-        found_ID = file_info[4]
+    if img is None:
+      print(f"Error Image: {file_name} is nonetype")
+      break
 
-        if df[(df['Well']==found_ID[0:3]) & (df['DateVAST']==str(vastdate))]['GeneralIssues'].values[0] == 'No':
-            if df[(df['Well']==found_ID[0:3]) &(df['DateVAST']==str(vastdate))]['Truncated'].values[0] == 'No':
+    #Attempting to read file name information needs to be "_" seperated
+    #Expects: VASTdate_a_b_c_found_ID_..._platenum, where in a, b, and c can we any values
+    file_info = file_name.split("_")
+    vastdate = file_info[0]
+    plate_num = f[-1]
+    found_ID = file_info[4]
 
-                filetered_df = df[(df.DateVAST == str(vastdate)) & (df.Plate == int(plate_num))]
-
-                selected_row = filetered_df[filetered_df['Well'] == found_ID[0:3]]
-                if selected_row.shape[0] == 0:
-                    continue
-                if selected_row.shape[0] > 1:
-                    selected_row = selected_row.iloc[[0]]
-                A = selected_row['Age'].item()
-                G = selected_row['Genotype'].item()
-                D = selected_row['DateVAST'].item()
-                P = selected_row['Plate'].item()
-                I = selected_row['Well'].item()
-                full_id = '{A}_{G}_{D}_{P}_{I}'.format(A=A,G=G,D=D,P=P,I=I)
-                images[full_id] = img
+    #Attempting to Query the samples data from the DF(xlsx)
+    #IMPORTANT: Images that are read in ALL need to be in the Meta Data
+    Base_query = df[(df['Well']==found_ID[0:3]) & (df['DateVAST']==str(vastdate)) & (df['Plate']==int(plate_num))]
+    if Base_query.empty:
+      print(f"Image Query for sample: {vastdate}_{found_ID[:3]}_{plate_num} not found")
+      break
+    if (Base_query["GeneralIssues"].iloc[0] == "No") & (Base_query["Truncated"].iloc[0] == "No"):
+      if Base_query.shape[0] >= 1:
+        Base_query = Base_query.iloc[[0]]
+        A = Base_query['Age'].item()
+        G = Base_query['Genotype'].item()
+        D = Base_query['DateVAST'].item()
+        P = Base_query['Plate'].item()
+        I = Base_query['Well'].item()
+        full_id = '{A}_{G}_{D}_{P}_{I}'.format(A=A,G=G,D=D,P=P,I=I)
+        images[full_id] = img
 
   ordered_images = OrderedDict(sorted(images.items()))
   return ordered_images
@@ -79,14 +86,15 @@ def JSON_Parser(file):
   features = [key for key,values in data.items()]
   features = features[3:-1]
   features_dict = {}
-
   for i in features:
-    if "shape" in data[i]:
-      if data[i]["shape"] is not None:
-        pair_list = []
-        for j in range(len(data[i]["shape"]["x"])):
+    shape_check = "shape" in data[i]
+    if shape_check == False:
+      print(f"JSON File: {file} Feature {i} is Empty")
+      break
+    pair_list = []
+    for j in range(len(data[i]["shape"]["x"])):
           pair_list.append((data[i]["shape"]["y"][j], data[i]["shape"]["x"][j]))
-        features_dict[i] = pair_list
+    features_dict[i] = pair_list
   return features_dict
 
 def JSON_RegionProps(file):
@@ -95,47 +103,54 @@ def JSON_RegionProps(file):
   features = [key for key,values in data.items()][3:-1]
   features_dict = {}
   for i in features:
-    if 'regionprops' in data[i]:
-      features_dict[ i + '_' + 'regionprops'] = data[i]['regionprops']
+    region_prop_check = 'regionprops' in data[i]
+    if region_prop_check == False:
+      print(f"Region Prop coordinates for feature {i} in file {file} has not been found")
+      break
+    features_dict[ i + '_' + 'regionprops'] = data[i]['regionprops']
   return features_dict
 
+
 #Function to Load the JSON files from the folder, saving them as dictionaries
-def Load_JSON_from_folder(f,df):
-  Unique_ID = df['Well'].unique()
+def Load_JSON_from_folder(df,f):
   JSONs = {}
   JSON_prop = {}
   json_files = [path for path in os.listdir(f) if path.endswith('.json')]
-  #print(len(json_files))
-  for shape in tqdm(json_files):
-    print(shape)
-    file_info = shape.split("_")
+  for json in tqdm(json_files):
+    #Fetching Information about thr JSON file Name
+    file_info = json.split("_")
     vastdate = file_info[0]
     plate_num = f[-1]
     found_ID = file_info[4]
+    if json is None:
+      print(f"Error Image: {json} is nonetype")
+      break
 
-    if df[(df['Well']==found_ID[0:3]) & (df['DateVAST']==str(vastdate))]['GeneralIssues'].values[0] == 'No':
-        if df[(df['Well']==found_ID[0:3]) &(df['DateVAST']==str(vastdate))]['Truncated'].values[0] == 'No':
-            
-            feature_dict = JSON_Parser(os.path.join(f,shape))
-            print(shape, 'got here')
-            region_prop_dict = JSON_RegionProps(os.path.join(f,shape))
+    #Query for the sample based on the JSON file info
+    Base_query = df[(df['Well']==found_ID[0:3]) & (df['DateVAST']==str(vastdate)) & (df['Plate']==int(plate_num))]
+    if Base_query.empty:
+      print(f"JSON Query for sample: {vastdate}_{found_ID[:3]}_{plate_num} not found")
+      break
+    Issue_Check = (Base_query["GeneralIssues"].iloc[0] == "No") & (Base_query["Truncated"].iloc[0] == "No")
+    if Issue_Check == False:
+      print(f"Skipping sample: {vastdate}_{found_ID[0:3]}_{plate_num} flagged as General Issue or Truncated")
+      continue
 
-            filetered_df = df[(df.DateVAST == str(vastdate)) & (df.Plate == int(plate_num))]
-            selected_row = filetered_df[filetered_df['Well'] == found_ID[0:3]]
-            if selected_row.shape[0] == 0:
-                continue
-            if selected_row.shape[0] > 1:
-                selected_row = selected_row.iloc[[0]]
+    #Parsing through the JSON Files to retrive coordinates
+    feature_dict = JSON_Parser(os.path.join(f,json))
+    region_prop_dict = JSON_RegionProps(os.path.join(f,json))
+    if Base_query.shape[0] >= 1:
+      Base_query = Base_query.iloc[[0]]
 
-            A = selected_row['Age'].item()
-            G = selected_row['Genotype'].item()
-            D = selected_row['DateVAST'].item()
-            P = selected_row['Plate'].item()
-            I = selected_row['Well'].item()
-            full_id = '{A}_{G}_{D}_{P}_{I}'.format(A=A,G=G,D=D,P=P,I=I)
+      A = Base_query['Age'].item()
+      G = Base_query['Genotype'].item()
+      D = Base_query['DateVAST'].item()
+      P = Base_query['Plate'].item()
+      I = Base_query['Well'].item()
+      full_id = '{A}_{G}_{D}_{P}_{I}'.format(A=A,G=G,D=D,P=P,I=I)
 
-            JSONs[full_id] = feature_dict
-            JSON_prop[full_id] = region_prop_dict
+      JSONs[full_id] = feature_dict
+      JSON_prop[full_id] = region_prop_dict
 
   JSONs = OrderedDict(sorted(JSONs.items()))
   JSON_prop = OrderedDict(sorted(JSON_prop.items()))
@@ -348,7 +363,7 @@ def Load_Dictionaries(BASE_DIR,df):
     for dir in os.listdir(BASE_DIR):
         print(dir)
         t_img_dict = Load_images(df,os.path.join(BASE_DIR,dir))
-        t_json_dict,_ = Load_JSON_from_folder(os.path.join(BASE_DIR,dir), df)
+        t_json_dict,_ = Load_JSON_from_folder(df,os.path.join(BASE_DIR,dir))
         img_dict[dir] = t_img_dict
         json_dict[dir] = t_json_dict
     return img_dict, json_dict
