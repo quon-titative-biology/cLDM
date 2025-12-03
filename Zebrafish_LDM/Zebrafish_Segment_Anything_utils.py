@@ -87,10 +87,10 @@ def JSON_Parser(file):
   features = features[3:-1]
   features_dict = {}
   for i in features:
-    shape_check = "shape" in data[i]
+    shape_check = ("shape" in data[i]) & (data[i]["shape"] != None)
     if shape_check == False:
-      print(f"JSON File: {file} Feature {i} is Empty")
-      break
+      print(f"JSON File: {file} Feature {i} is Empty\n")
+      continue
     pair_list = []
     for j in range(len(data[i]["shape"]["x"])):
           pair_list.append((data[i]["shape"]["y"][j], data[i]["shape"]["x"][j]))
