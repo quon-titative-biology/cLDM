@@ -286,6 +286,8 @@ def create_Dataset(img_masks,cropped_imgs):
     border = find_border_pixels(cropped_imgs[id])
     if border == []:
       trunc = False
+    else:
+      trunc = True
     trun.append(trunc)
   new_df = pd.DataFrame({'Label': geno, 'Age': age,
               'Date':dates, 'Fish_ID':ids,
