@@ -28,3 +28,34 @@ Example command line prompt to run training script:
 python Zebrafish_LDM/ZebraFish_Segment_Anything.py --DATA_PATH=./Data/ --META_PATH=./Zebrafish_LDM/example.xlsx --SAM_PATH=./models/sam_vit_h_4b8939.pth --OUT_PATH=./outputs
 python Zebrafish_LDM/vae_training.py --DATA_PATH=./outputs/Example_images.npy --META_PATH=./outputs/Example_metadata.csv --VAE_PATH=./VAE_results/ --LR=1e-1 --BATCH_SIZE=100 --EPOCHS=200
 ```
+
+# Training cLDM:
+To train the cLDM from the command line the script `ZebraFish_LDM_Training.py` can be ran. This takes the following paramaters:
+- `run_name`:
+- `noise_steps`
+- `epochs`
+- `seed`
+- `batch_size`
+- `img_size`
+- `device`
+- `lr`
+- `loss_opt`
+- `USE_GUIDE`
+- `DROP`
+- `unet_depth`
+- `class_embed`
+- `drop_stragegy`
+- `num_heads`
+- `CONVAE_PATH`
+- `DATA_PATH`
+- `OUT_PATH`
+- `META_PATH`
+- `LAMBDA`
+
+
+
+
+
+
+
+
