@@ -10,3 +10,6 @@ To train the VAE from the command line the script `vae_training.py` can be ran. 
 - `DATA_PATH`: Path to the processed images `.npy` output from the preprocessing script
 - `META_PATH`: Path to the metadata `.csv` output from the preprocessing script
 - `VAE_PATH`: Output path for the model weights as well as training, validation, and testing embedding `.pt` files used in the cLDM training
+- `LR`: Learning rate parameter by default set to `1e-3`
+- `BATCH_SIZE`: Batch size parameter by default set to 100
+- `EPOCHS`: Epoch parameter by default set to 200
