@@ -1,2 +1,2 @@
 # ZebraFish Model Training Guide
-README file for training the VAE and cLDM
+This guide will navigate you through training the the VAE and cLDM respectively and highlight components which can be tweaked for optimal training.
