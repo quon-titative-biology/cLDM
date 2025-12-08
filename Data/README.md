@@ -11,10 +11,50 @@ The preprocessing scripts are build around the FishInspectro JSON files as such 
 - `contourDV_net`, `yolkDV_net`, `eye1DV_net`
 
 
-Example Stucture:
+Example directory stucture:
 ```
 ├── 2022.11.11_VAST_HSDs_pooled_humanized_5dpf_arhgap11_plate1/
 │   ├── 2022.11.11_5dpf_tail_W_G01_1_4_rot__SHAPES.json
 │   ├── 2022.11.11_5dpf_tail_W_G01_1_4_rot.tiff
+```
+
+Example JSON file structure
+```
+{
+	"version": 0.99,
+	"enabled": 1,
+	"imageDimensions": [1024,200,3],
+	"contourDV_net": {
+		"mode": "auto",
+		"shape": {
+			"name": "fineContour",
+			"x":...
+			"y":...
+		},
+		"regionprops": {
+       ...
+		}
+	},
+	"eye1DV_net": {
+		"shape": {
+			"name": "fineContour",
+			"x": ...
+			"y": ...
+		},
+		"regionprops": {
+       ...
+		}
+	},
+	"yolkDV_net": {
+		"shape": {
+			"name": "fineContour",
+			"x": ...
+			"y": ...
+		},
+		"regionprops": {
+       ...
+		}
+	}
+}
 ```
 
