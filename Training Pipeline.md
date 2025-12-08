@@ -13,3 +13,12 @@ To train the VAE from the command line the script `vae_training.py` can be ran. 
 - `LR`: Learning rate parameter by default set to `1e-3`
 - `BATCH_SIZE`: Batch size parameter by default set to 100
 - `EPOCHS`: Epoch parameter by default set to 200
+
+During training the model will output the following reuslts per epoch:
+- `Train Total_Loss:`
+- `Train MSE`:
+- `Train kld`:
+
+- `Validation Total_loss`:
+- `Validation MSE`:
+- `Validation kld`:
