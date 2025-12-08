@@ -15,10 +15,16 @@ To train the VAE from the command line the script `vae_training.py` can be ran. 
 - `EPOCHS`: Epoch parameter by default set to 200
 
 During training the model will output the following reuslts per epoch:
-- `Train Total_Loss:`
-- `Train MSE`:
-- `Train kld`:
+- `Train Total_Loss:` Training Sum of the reconstruction loss (MSE) and KL divergence loss for epoch
+- `Train MSE`: Training mean square error for current epoch
+- `Train kld`: Training Kl divengece for current epoch 
 
-- `Validation Total_loss`:
-- `Validation MSE`:
-- `Validation kld`:
+- `Validation Total_loss`: Validation Sum of the reconstruction loss (MSE) and KL divergence loss for current epoch
+- `Validation MSE`: Validation mean square error for current epoch
+- `Validation kld`: Validation Kl divengece for current epoch
+
+Example command line prompt to run training script:
+```
+python Zebrafish_LDM/ZebraFish_Segment_Anything.py --DATA_PATH=./Data/ --META_PATH=./Zebrafish_LDM/example.xlsx --SAM_PATH=./models/sam_vit_h_4b8939.pth --OUT_PATH=./outputs
+python Zebrafish_LDM/vae_training.py --DATA_PATH=./outputs/Example_images.npy --META_PATH=./outputs/Example_metadata.csv --VAE_PATH=./VAE_results/ --LR=1e-1 --BATCH_SIZE=100 --EPOCHS=200
+```
