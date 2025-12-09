@@ -53,7 +53,9 @@ To train the cLDM from the command line the script `ZebraFish_LDM_Training.py` c
 - `LAMBDA`: weight for loss set to `0.5` by default
 
 
-
+Example command line prompt to run training script:
+```
+```
 
 
 
