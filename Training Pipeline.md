@@ -31,26 +31,26 @@ python Zebrafish_LDM/vae_training.py --DATA_PATH=./outputs/Example_images.npy --
 
 # Training cLDM:
 To train the cLDM from the command line the script `ZebraFish_LDM_Training.py` can be ran. This takes the following paramaters:
-- `run_name`:
-- `noise_steps`
-- `epochs`
-- `seed`
-- `batch_size`
-- `img_size`
-- `device`
-- `lr`
-- `loss_opt`
-- `USE_GUIDE`
-- `DROP`
-- `unet_depth`
-- `class_embed`
-- `drop_stragegy`
-- `num_heads`
-- `CONVAE_PATH`
-- `DATA_PATH`
-- `OUT_PATH`
-- `META_PATH`
-- `LAMBDA`
+- `run_name`: Name of the process run
+- `noise_steps`: number of diffusion time steps set to `350` by default
+- `epochs`: Number of training epochs set to `2000` by default
+- `seed`: Random seed for reproduciblity set to `42` by default
+- `batch_size`: number of embeddings per training steps set to `128` by default
+- `img_size`: Emebedding dimmension set to `48`
+- `device`: hardware device used for training set to `cuda` by default
+- `lr`: learning rate for training set to `1e-4` by default
+- `loss_opt`: Loss function for training the model using `MSE`
+- `USE_GUIDE`: Whether to use classifier-free guidance set to `False` by default
+- `DROP`: Drop probability fo classifier free guidance
+- `unet_depth`: Number of downsample/upsample blocks for model structure set to `4` by default
+- `class_embed`: Using additive or concatenation for the class embeddings set to `ADD` by default
+- `drop_strategy`: Drop strategy for sampling set to origin for default
+- `num_heads`: Number of attention heads in the transformer blocks set to `4` by default
+- `CONVAE_PATH`: Path to the saved VAE model `.pth`
+- `DATA_PATH`: Path to the training, validation, and testing embeddings output from the `training_vae.py` script
+- `OUT_PATH`: Output path where the mode is saved
+- `META_PATH`: Meta data path for the `.csv` output from the `Zebrafish_SegmentAnything.py` script
+- `LAMBDA`: weight for loss set to `0.5` by default
 
 
 
