@@ -28,6 +28,14 @@ Example command line prompt to run training script:
 python Zebrafish_LDM/ZebraFish_Segment_Anything.py --DATA_PATH=./Data/ --META_PATH=./Zebrafish_LDM/example.xlsx --SAM_PATH=./models/sam_vit_h_4b8939.pth --OUT_PATH=./outputs
 python Zebrafish_LDM/vae_training.py --DATA_PATH=./outputs/Example_images.npy --META_PATH=./outputs/Example_metadata.csv --VAE_PATH=./VAE_results/ --LR=1e-1 --BATCH_SIZE=100 --EPOCHS=200
 ```
+After running the training script 4 files will be saved to the `VAE_PATH` directory they are as followed and used for training the cLDM:
+- `train_embedding_angle1_48_new.pt`: Training embedding tensor
+- `val_embedding_angle1_48_new.pt`: Validation embedding tensor
+- `testing_embedding_angle1_48_new.pt`: Testing embedding tensor
+- `rvae_ckpt_angle1_48_new.pth`: Saved VAE Model
+Additionally valdiation and training loss curves are also saved, and reconstruction of samples are also plotted
+
+
 
 # Training cLDM:
 To train the cLDM from the command line the script `ZebraFish_LDM_Training.py` can be ran. This takes the following paramaters:
