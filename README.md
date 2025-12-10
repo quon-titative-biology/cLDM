@@ -54,5 +54,5 @@ Output Example:
 ![output image](Zebrafish_LDM/output_image.png)
 
 
-** For retraining the VAE and cLDM please refer to the training.md**
+**For retraining the VAE and cLDM please refer to the Training pipeline.md**
 
