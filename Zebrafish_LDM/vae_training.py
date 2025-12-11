@@ -1,8 +1,3 @@
-# conda env create -f environment.yaml
-# conda activate ldm
-# pip install packaging==21.3
-# pip install 'torchmetrics<0.8'
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -20,15 +15,23 @@ from util import *
 ############################################### 0. Load the data ###############################################
 #Argument Parser
 config = SimpleNamespace(
-    DATA_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/files/',
-    META_PATH = '/group/gquongrp/workspaces/rmvaldar/Zebrafish/Morphometric_data-2.xlsx',
-    VAE_PATH = '/group/gquongrp/workspaces/rmvaldar/VAE_results/')
+    DATA_PATH = '/group/gquongrp/workspaces/nhaghani/ZebraFish-Diffusion-Model_test/outputs/Full_processed.npy',
+    META_PATH = '/group/gquongrp/workspaces/nhaghani/ZebraFish-Diffusion-Model_test/outputs/Full_processed_metadata.csv',
+    VAE_PATH = '/group/gquongrp/workspaces/rmvaldar/ZebraFish-Diffusion-Model/VAE_results/',
+    LR = 1e-3,
+    BATCH_SIZE =100,
+    EPOCHS=200)
+
 ####################  Set attributes of configs  ################################
 def parse_args(config):
     parser = argparse.ArgumentParser(description='Loading Datapaths')
-    parser.add_argument('--DATA_PATH', type=str, default=config.DATA_PATH, help='Path to Folders Storing JSON/TIFF Data')
-    parser.add_argument('--META_PATH', type = str, default= config.META_PATH, help = 'Path to .xlsx Meta Data')
+    parser.add_argument('--DATA_PATH', type=str, default=config.DATA_PATH, help='Path to folders stroing preprocessed data')
+    parser.add_argument('--META_PATH', type = str, default= config.META_PATH, help = 'Path to .csv meta data')
     parser.add_argument('--VAE_PATH',type = str, default= config.VAE_PATH, help = 'Path to save VAE Results')
+
+    parser.add_argument('--LR', type=str, default=config.LR, help='learning rate hyper parameter')
+    parser.add_argument('--BATCH_SIZE', type = str, default= config.BATCH_SIZE, help = 'Batch size for the model')
+    parser.add_argument('--EPOCHS',type = str, default= config.EPOCHS, help = 'Number of Epochs for training')
     args = vars(parser.parse_args())
     # update config with parsed args
     for k, v in args.items():
@@ -43,36 +46,7 @@ Train_indices = full_csv.index[full_csv['Train_Or_Test'] == 'TRAIN'].tolist()
 Valid_indices = full_csv.index[full_csv['Train_Or_Test'] == 'VALID'].tolist()
 Test_indices = full_csv.index[full_csv['Train_Or_Test'] == 'TEST'].tolist()
 
-ymap = {'pdzk1KO': 0,
- 'hydinKO': 1,
- 'arhgap11KO': 2,
- 'scrambled': 3,
- 'uninjected': 4,
- 'gpr89KO': 5,
- 'npy4rKO': 6,
- 'frmpd2KO': 7,
- 'fam72KO': 8,
- 'ptpn20KO': 9,
- 'ncf1KO': 10,
- 'arhgap11MO': 11,
- 'controlMO': 12,
- 'ARHGAP11A': 13,
- 'ARHGAP11B': 14,
- 'srgap2KO': 15,
- 'SRGAP2A': 16,
- 'SRGAP2C': 17,
- 'eGFP': 18,
- 'GPR89B': 19,
- 'NPY4R': 20,
- 'FAM72B': 21,
- 'FRMPD2A': 22,
- 'FRMPD2B': 23,
- 'NCF1A': 24,
- 'NCF1C': 25,
- 'PDZK1': 26,
- 'PDZK1P1': 27,
- 'PTPN20': 28,
- 'PTPN20CP': 29}
+ymap = {label: idx for idx, label in enumerate(np.unique(full_csv.Label))}
 
 #Stacking sets
 data_train = np.stack([full_imgs[i] for i in Train_indices],axis = 0).astype(np.uint8)
@@ -154,14 +128,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 rvae = ResVAE()
 rvae.to(device)
-learning_rate = 1e-3
-batch_size = 100
-epochs = 200
+learning_rate = config.LR
+batch_size = config.BATCH_SIZE
+epochs = config.EPOCHS
 min_val_loss = np.Inf
 epochs_no_improve = 0
 early_stop = False
 patience = 25
 SEED=34
+
 setup_seed(SEED)
 from torch.utils.data import DataLoader
 DataLoader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
@@ -284,7 +259,7 @@ fig.savefig(data_path + 'val_loss.png')
 ##############################################################################################
 trainData = trainData.cpu()
 valData = valData.cpu()
-data_path = VAE_PATH
+data_path = config.VAE_PATH
 torch.save(rvae_ckpt, data_path + 'rvae_ckpt_angle1_48_new.pth')
 # model_path = '/group/gquongrp/workspaces/hongruhu/fishDiffusion/48_results_mean_loss/'
 # rvae_ckpt = torch.load(model_path + 'rvae_ckpt_angle1_48.pth')
