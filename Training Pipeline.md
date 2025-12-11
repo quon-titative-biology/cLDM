@@ -1,7 +1,7 @@
 # ZebraFish Model Training Guide
 This guide will navigate you through training the the VAE and cLDM respectively and highlight components which can be tweaked for optimal training.
 
-** Prior to training VAE steps: **
+**Prior to training VAE steps:**
 - All images need to be properly processed through the `Zebrafish_SegmentAnything.py` script
 - `TRAIN`, `VALID`, and `TEST` labels should be appeneded to the output `.csv` from the `Zebrafish_SegmentAnything.py` script in a column labeled `Train_Or_Test`
   
