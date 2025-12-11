@@ -66,7 +66,7 @@ Example command line prompt to run training script:
 python Zebrafish_LDM/vae_embed.py --DATA_PATH=./outputs/Example_images.npy --META_PATH=./outputs/Example_metadata.csv --VAE_PATH=./VAE_results/ --MODEL_PATH=./models/
 python Zebrafish_LDM/LDM_training.py --run_name=LDM_NOGUIDE_PTO_PERGEN_BESTMODEL --noise_steps=350 --epochs=2000 --device='cuda' --CONVAE_PATH=./models/rvae_1_ckpt_angle1_48.pth --DATA_PATH=./VAE_results/model_ckpt/embedding_48_new.pt --OUT_PATH=.Zebrafish_LDM/LDM --META_PATH=./outputs/Example_metadata.csv
 ```
-
+After running the `LDM_training.py` a folder with the models run_name will be saved and stored in the designated output directory which can then be loaded into the `Zebrafish_Perturbation.py` script
 
 
 
